@@ -1,0 +1,81 @@
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MADOR v1</title>
+  <link rel="icon" href="immagini/logo.png">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="container">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="calcolatore.html">Calcolatore Ordini</a>
+    <a href="diario.html">Diario Operativo</a>
+    <a href="checklist.html">Checklist Pre-Trade</a>
+    <a href="report.html">Rapporto Settimanale</a>
+  </nav>
+
+  <div class="card">
+    <h1>Diario Operativo</h1>
+    <p class="small">Annota le operazioni. I dati restano in locale.</p>
+    <div class="grid">
+      <input id="d_titolo" placeholder="Titolo / Strumento"/>
+      <input id="d_data" type="date"/>
+      <input id="d_ingresso" type="number" placeholder="Prezzo ingresso"/>
+      <input id="d_uscita" type="number" placeholder="Prezzo uscita (se chiusa)"/>
+      <textarea id="d_note" rows="4" placeholder="Note, motivazioni, gestione..."></textarea>
+    </div>
+    <button onclick="aggiungiVoce()">Aggiungi</button>
+    <hr/>
+    <table class="table" id="d_tab">
+      <thead><tr><th>Data</th><th>Titolo</th><th>In</th><th>Out</th><th>Note</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script>
+    const keyD = 'mador_diario';
+    function render(){
+      const rows = leggiLocal(keyD, []);
+      const tbody = document.querySelector('#d_tab tbody');
+      tbody.innerHTML = rows.map((r,i)=>`
+        <tr>
+          <td>${r.data||''}</td>
+          <td>${r.titolo||''}</td>
+          <td>${r.in||''}</td>
+          <td>${r.out||''}</td>
+          <td>${r.note||''}</td>
+          <td><button onclick="delVoce(${i})">✕</button></td>
+        </tr>
+      `).join('');
+    }
+    function aggiungiVoce(){
+      const rows = leggiLocal(keyD, []);
+      rows.unshift({
+        titolo: document.getElementById('d_titolo').value,
+        data: document.getElementById('d_data').value,
+        in: document.getElementById('d_ingresso').value,
+        out: document.getElementById('d_uscita').value,
+        note: document.getElementById('d_note').value,
+      });
+      salvaLocal(keyD, rows); render();
+      document.getElementById('d_titolo').value='';
+      document.getElementById('d_data').value='';
+      document.getElementById('d_ingresso').value='';
+      document.getElementById('d_uscita').value='';
+      document.getElementById('d_note').value='';
+    }
+    function delVoce(i){
+      const rows = leggiLocal(keyD, []);
+      rows.splice(i,1); salvaLocal(keyD, rows); render();
+    }
+    render();
+  </script>
+
+  <footer>© MADOR v1 · Demo operativa locale (dati salvati solo sul tuo browser)</footer>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MADOR v1</title>
+  <link rel="icon" href="immagini/logo.png">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="container">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="calcolatore.html">Calcolatore Ordini</a>
+    <a href="diario.html">Diario Operativo</a>
+    <a href="checklist.html">Checklist Pre-Trade</a>
+    <a href="report.html">Rapporto Settimanale</a>
+  </nav>
+
+  <div class="card">
+    <h1>Calcolatore Ordini</h1>
+    <p class="small">Calcola esposizione, leva, stop e target come fossero problemi matematici — chiari e ripetibili.</p>
+    <div class="grid">
+      <div class="card">
+        <label>Capitale (USDC)</label>
+        <input id="capitale" type="number" placeholder="es. 20000"/>
+      </div>
+      <div class="card">
+        <label>Rischio per trade (%)</label>
+        <input id="rischio" type="number" placeholder="es. 1"/>
+      </div>
+      <div class="card">
+        <label>Prezzo ingresso</label>
+        <input id="ingresso" type="number" placeholder="es. 1.00"/>
+      </div>
+      <div class="card">
+        <label>Stop loss</label>
+        <input id="stop" type="number" placeholder="es. 0.98"/>
+      </div>
+      <div class="card">
+        <label>Target</label>
+        <input id="target" type="number" placeholder="es. 1.02"/>
+      </div>
+    </div>
+    <button onclick="calcola()">Calcola</button>
+    <hr/>
+    <div id="risultati"></div>
+  </div>
+  <script>
+    function calcola(){
+      const cap = Number(document.getElementById('capitale').value || 0);
+      const riskPct = Number(document.getElementById('rischio').value || 0) / 100;
+      const ingresso = Number(document.getElementById('ingresso').value || 0);
+      const stop = Number(document.getElementById('stop').value || 0);
+      const target = Number(document.getElementById('target').value || 0);
+      if(!cap || !riskPct || !ingresso || !stop){ 
+        document.getElementById('risultati').innerHTML = '<p class="small">Compila Capitale, %Rischio, Ingresso e Stop.</p>'; 
+        return;
+      }
+      const rischioAssoluto = cap * riskPct;
+      const perditaPerUnit = Math.max(ingresso - stop, 0);
+      const qty = perditaPerUnit ? Math.floor(rischioAssoluto / perditaPerUnit) : 0;
+      const gainPerUnit = target ? (target - ingresso) : 0;
+      const rr = perditaPerUnit ? (gainPerUnit / perditaPerUnit).toFixed(2) : "—";
+      const expo = qty * ingresso;
+      const res = `
+        <div class="grid">
+          <div class="card"><b>Qty</b><br/>${qty}</div>
+          <div class="card"><b>Esposizione</b><br/>${expo.toFixed(2)}</div>
+          <div class="card"><b>Rischio €</b><br/>${rischioAssoluto.toFixed(2)}</div>
+          <div class="card"><b>R:R</b><br/>${rr}</div>
+        </div>
+      `;
+      document.getElementById('risultati').innerHTML = res;
+      salvaLocal('mador_calcolo', {cap, riskPct, ingresso, stop, target, qty});
+    }
+  </script>
+
+  <footer>© MADOR v1 · Demo operativa locale (dati salvati solo sul tuo browser)</footer>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

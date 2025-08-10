@@ -1,0 +1,62 @@
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MADOR v1</title>
+  <link rel="icon" href="immagini/logo.png">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="container">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="calcolatore.html">Calcolatore Ordini</a>
+    <a href="diario.html">Diario Operativo</a>
+    <a href="checklist.html">Checklist Pre-Trade</a>
+    <a href="report.html">Rapporto Settimanale</a>
+  </nav>
+
+  <div class="card">
+    <h1>Checklist Pre-Trade</h1>
+    <p class="small">Spunta i punti essenziali prima di ogni operazione.</p>
+    <div id="list"></div>
+    <hr/>
+    <button onclick="resetList()">Reset</button>
+  </div>
+  <script>
+    const keyC = 'mador_checklist';
+    const defaultItems = [
+      "Tesi di base chiara",
+      "Livelli di ingresso/stop/target definiti",
+      "Rischio % rispettato",
+      "Calendario eventi (macro/news) verificato",
+      "Condizioni psicologiche stabili",
+      "Piano di gestione e uscita pronto"
+    ];
+    function renderC(){
+      const state = leggiLocal(keyC, defaultItems.map(t=>({t,done:false})));
+      const html = state.map((it, i)=>`
+        <div class="card" style="display:flex;gap:12px;align-items:center;">
+          <input type="checkbox" ${it.done?'checked':''} onchange="toggle(${i}, this.checked)"/>
+          <span>${it.t}</span>
+        </div>
+      `).join('');
+      document.getElementById('list').innerHTML = html;
+    }
+    function toggle(i, val){
+      const state = leggiLocal(keyC, []);
+      state[i].done = val; salvaLocal(keyC, state); renderC();
+    }
+    function resetList(){
+      salvaLocal(keyC, defaultItems.map(t=>({t,done:false}))); renderC();
+    }
+    renderC();
+  </script>
+
+  <footer>© MADOR v1 · Demo operativa locale (dati salvati solo sul tuo browser)</footer>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
